@@ -7,7 +7,7 @@ A simple, ugly, faulty script to create PHP working dirs. Prerquirements:
 
 If this script is then invoked like
 
-    $ ./create-php-workdir
+    $ ./create-php-workdir 5.3
 
 it will use git-new-workdir to create a directory called php-5.3 to hold
 the source of the PHP-5.3 branch and run buildconf in there.
@@ -23,3 +23,14 @@ configurations of PHP.
 
 Mind that the script does only little error checking and such so be careful.
 
+If you are really lazy these should be the steps toget you started:
+
+    $ mkdir php
+    $ cd php
+    $ mkdir build
+    $ git clone git@git.php.net:php-src.git
+    $ PHP_AUTOCONF=autoconf213 ./create-php-workdir 5.3
+    $ ./create-php-workdir 5.4
+    $ ./create-php-workdir master
+
+And then look around the generated directories php-* and build/*
