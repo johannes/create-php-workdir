@@ -1,0 +1,25 @@
+create-php-workdir
+------------------
+
+A simple, ugly, faulty script to create PHP working dirs. Prerquirements:
+  - git-new-workdir in $PATH
+  - A clone of the PHP source tree in `pwd`/php-src
+
+If this script is then invoked like
+
+    $ ./create-php-workdir
+
+it will use git-new-workdir to create a directory called php-5.3 to hold
+the source of the PHP-5.3 branch and run buildconf in there.
+
+Then it will create a bunch of build dirs:
+   build/5.3/debug-notsrm
+   build/5.3/debug-tsrm
+   build/5.3/nodebug-notsrm
+   build/5.3/nodebug-tsrm
+
+Which contain configure and config.nice files ready to build different
+configurations of PHP.
+
+Mind that the script does only little error checking and such so be careful.
+

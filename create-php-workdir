@@ -1,0 +1,53 @@
+#!/bin/sh
+
+if test $# -lt 1 || test $# -gt 1
+then
+	echo "Usage: $0 <BRANCH>"
+	echo
+	echo "This will create a php-<BRANCH> source directory using "
+	echo "php-src's PHP-<BRANCH> branch and a bunch of build dirs "
+	echo "with configure and config.nice scripts."
+	echo "Note: buildconf will be run, so you might want to set PHP_AUTOCONF"
+	exit 128
+fi
+
+MASTER_DIR=`pwd`/php-src
+GIT_NEW_WORKDIR=git-new-workdir
+DEFAULT_OPTIONS="--with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-gd --with-zlib --with-openssl --enable-soap"
+BRANCH=$1
+
+git_dir=$(cd "$MASTER_DIR" 2>/dev/null &&
+	git rev-parse --git-dir 2>/dev/null &&
+	git fetch origin) ||
+	die "Not a git repository: \"$MASTER_DIR\""
+
+
+if test -f php-$BRANCH
+then
+	echo php-$BRANCH exists
+	exit 127
+fi
+
+$GIT_NEW_WORKDIR $MASTER_DIR ./php-$BRANCH PHP-$BRANCH
+(cd ./php-$BRANCH; ./buildconf)
+mkdir build/$BRANCH
+
+echo ""
+
+for i in debug-notsrm debug-tsrm nodebug-notsrm nodebug-tsrm
+do
+	echo "Creating build dir for $i in build/$BRANCH/$i"
+	mkdir build/$BRANCH/$i
+	configline=" --prefix=`pwd`/usr/$BRANCH/$i $DEFAULT_OPTIONS"
+	if test "$i" == "debug-notsrm" || test "$i" == "debug-tsrm"; then configline="$configline --enable-debug"; fi
+	if test "$i" == "debug-tsrm" || test "$i" == "nodebug-tstm"; then configline="$configline --enable-maintainer-zts"; fi
+	echo "`pwd`/php-$BRANCH/configure $configline \"\$@\"" > build/$BRANCH/$i/configure
+	chmod a+x build/$BRANCH/$i/configure
+
+	echo "#!/bin/sh" >  build/$BRANCH/$i/config.nice
+	echo "./configure" >> build/$BRANCH/$i/config.nice
+	chmod a+x build/$BRANCH/$i/config.nice
+done
+
+
+
