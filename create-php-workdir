@@ -15,6 +15,7 @@ MASTER_DIR=`pwd`/php-src
 GIT_NEW_WORKDIR=git-new-workdir
 DEFAULT_OPTIONS="--with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-gd --with-zlib --with-openssl --enable-soap"
 BRANCH=$1
+GIT_BRANCH="PHP-$BRANCH"
 
 git_dir=$(cd "$MASTER_DIR" 2>/dev/null &&
 	git rev-parse --git-dir 2>/dev/null &&
@@ -28,7 +29,15 @@ then
 	exit 127
 fi
 
-$GIT_NEW_WORKDIR $MASTER_DIR ./php-$BRANCH PHP-$BRANCH
+
+if test $BRANCH == master
+then
+	GIT_BRANCH=master
+fi
+
+echo "Checking out $GIT_BRANCH into php-$BRANCH"
+
+$GIT_NEW_WORKDIR $MASTER_DIR ./php-$BRANCH $GIT_BRANCH
 (cd ./php-$BRANCH; ./buildconf)
 mkdir build/$BRANCH
 
